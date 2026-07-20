@@ -1,41 +1,508 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MKWii Channel</title>
+<title>MKWii Channel // community.init()</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;font-family:system-ui,sans-serif;background:url("ctgp.png") no-repeat center center fixed;background-size:cover;color:white;overflow:hidden;}
-.page{height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-.card{width:460px;max-width:calc(100vw-40px);background:#141414;border:2px solid #000;border-radius:26px;padding:40px 36px 36px;text-align:center;position:relative;box-shadow:0 10px 20px rgba(0,0,0,0.6), inset 0 -2px 8px rgba(0,0,0,0.5), inset 0 2px 6px rgba(255,255,255,0.04);}
-.logo-box{width:88px;height:88px;margin:0 auto 20px;border-radius:20px;border:2px solid black;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.08);background:#0a0a0a;display:flex;align-items:center;justify-content:center;}
-.logo-box img{width:100%;height:100%;object-fit:cover;object-position:57% center;display:block;}
-h1{font-size:26px;margin-bottom:18px;}
-.desc{font-size:15px;line-height:1.6;color:rgba(255,255,255,0.88);margin-bottom:28px;}
-.buttons{display:flex;gap:14px;justify-content:center;margin-bottom:22px;flex-wrap:wrap;}
-.button{padding:14px 34px;border-radius:14px;font-weight:600;text-decoration:none;color:white;transition:transform 0.15s ease,box-shadow 0.15s ease;cursor:pointer;border:none;}
-.button:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,0.5);}
-.join{background:linear-gradient(135deg,#5865F2,#4752C4);}
-.database{background:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.14));border:1px solid rgba(255,255,255,0.18);}
-.note{font-size:12px;color:rgba(255,255,255,0.65);}
-@media(max-width:480px){.buttons{flex-direction:column;}.button{width:100%;}}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e14;
+  --bg2: #0d1420;
+  --surface: #101826;
+  --surface2: #0c1220;
+  --border: rgba(230,237,243,0.09);
+  --text: #e6edf3;
+  --muted: rgba(230,237,243,0.52);
+  --js: #f0db4f;
+  --py: #4b8bbe;
+  --green: #3fb950;
+  --red: #ff5555;
+  --blurple: #5865F2;
+  --blurple-light: #7983f5;
+  --glass-bg: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.025));
+  --glass-border: rgba(255,255,255,.14);
+  --glass-highlight: rgba(255,255,255,.22);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 10%, rgba(75,139,190,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 30%, rgba(240,219,79,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(88,101,242,0.12) 0%, transparent 60%);
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5;
+  background-image:
+    linear-gradient(rgba(230,237,243,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230,237,243,.03) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, black 0%, transparent 75%);
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+.wrap { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+
+/* ---------- NAV ---------- */
+.topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,14,20,0.6); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+.topnav-inner {
+  max-width: 1040px; margin: 0 auto; padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-box { width: 38px; height: 38px; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid var(--border); flex-shrink: 0; }
+.nav-logo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nav-logo-name { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: .3px; color: #fff; }
+
+/* ---------- HERO — split layout: text left, terminal right ---------- */
+.hero {
+  display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 44px; align-items: center;
+  padding: 64px 0 76px; perspective: 1400px;
+}
+.hero h1 {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: clamp(28px, 3.6vw, 42px);
+  line-height: 1.1; letter-spacing: .5px; margin-bottom: 16px; color: #fff;
+}
+.hero h1 .accent-js {
+  background: linear-gradient(120deg, #8892f8, var(--blurple) 50%, #a0a8fc);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p.lede {
+  font-size: 14.5px; line-height: 1.7; color: var(--muted); max-width: 420px; margin-bottom: 26px;
+}
+.hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+/* ---------- 2D GLASS JOIN BUTTON (no keycap, no drop-push) ---------- */
+.discord-key-wrap { position: relative; display: inline-block; }
+.discord-key-wrap::before {
+  content: ""; position: absolute; inset: -8px; border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(88,101,242,.4), transparent 70%);
+  filter: blur(12px); animation: glowPulse 2.8s ease-in-out infinite; pointer-events: none; z-index: -1;
+}
+@keyframes glowPulse { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: .9; transform: scale(1.05); } }
+.discord-key {
+  position: relative; display: inline-flex; align-items: center; gap: 12px;
+  padding: 13px 26px; border-radius: 12px; cursor: pointer; border: none;
+  background: linear-gradient(135deg, #6472f5, var(--blurple) 50%, #4a56e0);
+  color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: .3px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(88,101,242,.5), 0 8px 32px rgba(88,101,242,.25);
+  transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease;
+}
+.discord-key:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(88,101,242,.7), 0 18px 48px rgba(88,101,242,.3); }
+.discord-key:active, .discord-key.is-pressed { transform: translateY(-1px) scale(.97); }
+
+.cta-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: .3px;
+  padding: 15px 26px; border-radius: 14px; text-decoration: none; color: #fff;
+  background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.12);
+  transition: transform .2s cubic-bezier(.22,1,.36,1), background .2s, border-color .2s;
+}
+.cta-secondary:hover { transform: translateY(-3px); background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.22); }
+.cta-secondary:active { transform: translateY(-1px) scale(.97); }
+
+/* ---------- 3D TERMINAL: glass panel + stacked depth + gentle idle float ---------- */
+.terminal-stage {
+  position: relative; transform-style: preserve-3d;
+  animation: idleFloat 5s ease-in-out infinite;
+}
+@keyframes idleFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.terminal-3d {
+  position: relative; transform-style: preserve-3d;
+  transform: rotateY(-14deg) rotateX(7deg);
+  transition: transform .12s ease-out;
+}
+.stack-layer {
+  position: absolute; inset: 0; border-radius: 20px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border); transform-style: preserve-3d;
+}
+.stack-layer.l2 { transform: translateZ(-70px) translate(22px, 22px) rotate(2.5deg); opacity: .35; }
+.stack-layer.l1 { transform: translateZ(-35px) translate(11px, 11px) rotate(1.2deg); opacity: .6; }
+.terminal-window {
+  position: relative; transform: translateZ(30px); border-radius: 20px; overflow: hidden;
+  background: linear-gradient(165deg, rgba(22,30,46,.72), rgba(10,15,26,.62));
+  backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 40px 90px rgba(0,0,0,.55), 0 10px 24px rgba(0,0,0,.4);
+}
+.terminal-titlebar {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+  background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.tdot { width: 11px; height: 11px; border-radius: 50%; }
+.tdot.r { background: #ff5f57; } .tdot.y { background: #febc2e; } .tdot.g { background: #28c840; }
+.terminal-path { margin-left: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+.terminal-body {
+  position: relative; z-index: 2;
+  padding: 22px 22px 26px; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.85;
+  min-height: 260px; color: rgba(230,237,243,0.9);
+}
+.tl-prompt { color: var(--blurple-light); }
+.tl-key { color: var(--py); }
+.tl-str { color: var(--js); }
+.tl-ok { color: var(--green); }
+.tl-comment { color: var(--muted); }
+.tl-cursor { display: inline-block; width: 7px; height: 15px; background: var(--green); margin-left: 2px; vertical-align: -2px; animation: blink 1s step-end infinite; }
+
+/* floating code-shard cards — glassy, always above the terminal stack */
+.shard {
+  position: absolute; z-index: 20; padding: 10px 14px; border-radius: 10px;
+  background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.16);
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 16px 34px rgba(0,0,0,.45);
+  pointer-events: none;
+}
+.shard-1 { top: -30px; right: 20px; color: var(--js); animation: float1 5s ease-in-out infinite; }
+.shard-2 { bottom: -26px; left: -24px; color: var(--py); animation: float2 6s ease-in-out infinite; }
+.shard-3 { top: 42%; right: -46px; color: var(--blurple-light); animation: float3 4.5s ease-in-out infinite; }
+@keyframes float1 { 0%,100% { transform: translateZ(90px) translateY(0) rotate(-5deg); } 50% { transform: translateZ(90px) translateY(-14px) rotate(-3deg); } }
+@keyframes float2 { 0%,100% { transform: translateZ(80px) translateY(0) rotate(4deg); } 50% { transform: translateZ(80px) translateY(12px) rotate(6deg); } }
+@keyframes float3 { 0%,100% { transform: translateZ(60px) translateY(0) rotate(-2deg); } 50% { transform: translateZ(60px) translateY(-10px) rotate(-4deg); } }
+
+.section-label.center { text-align: center; }
+.live-preview { padding: 10px 0 90px; text-align: center; }
+.preview-devices { display: flex; align-items: flex-end; justify-content: center; gap: 60px; flex-wrap: wrap; }
+.device-laptop {
+  height: min(260px, 34vh); width: auto;
+  filter: drop-shadow(0 30px 60px rgba(0,0,0,.55));
+  animation: idleFloat 5.5s ease-in-out infinite;
+}
+.device-phone {
+  height: min(242px, 32vh); width: auto;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,.55));
+  animation: idleFloat 5.5s ease-in-out infinite; animation-delay: .6s;
+}
+
+/* ---------- SECTION LABEL ---------- */
+.section-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px;
+}
+.section-label .path { color: var(--green); }
+.section-title { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(22px,3vw,30px); color: #fff; margin-bottom: 44px; }
+
+/* ---------- MODULE CARDS — frosted glass ---------- */
+.modules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 110px; perspective: 1200px; }
+.module {
+  position: relative; border-radius: 22px; padding: 26px 24px 28px; overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 20px 45px rgba(0,0,0,.3);
+  transform-style: preserve-3d; transition: transform .1s ease-out, border-color .2s, box-shadow .2s;
+  will-change: transform;
+}
+.module:hover { border-color: var(--glass-highlight); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 26px 60px rgba(0,0,0,.4); }
+.module::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .2s;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.12), transparent 55%);
+}
+.module:hover::before { opacity: 1; }
+.module-icon-badge {
+  width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; background: var(--badge-bg, rgba(255,255,255,.08));
+  border: 1px solid rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+}
+.module-icon { width: 22px; height: 22px; }
+.module h3 { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #fff; margin-bottom: 10px; letter-spacing: -.2px; }
+.module p { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+
+/* ---------- BOTTOM CTA — glass panel ---------- */
+.bottom-cta {
+  text-align: center; padding: 70px 40px; border-radius: 26px; margin-bottom: 90px; position: relative; overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 30px 60px rgba(0,0,0,.35);
+}
+.bottom-cta::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(88,101,242,.16), transparent 60%);
+}
+.bottom-cta h2 { position: relative; font-family: 'JetBrains Mono', monospace; font-size: clamp(22px,3vw,30px); color: #fff; margin-bottom: 12px; }
+.bottom-cta p { position: relative; color: var(--muted); margin-bottom: 30px; font-size: 15px; }
+.bottom-cta .discord-key-wrap { position: relative; }
+.cta-row { position: relative; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- FOOTER ---------- */
+.footer {
+  border-top: 1px solid var(--border); padding: 26px 0 60px;
+  display: flex; align-items: center; justify-content: center;
+}
+.footer-left {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+}
+.footer-left img { width: 26px; height: 26px; border-radius: 8px; opacity: .95; flex-shrink: 0; }
+.footer-dot { color: rgba(255,255,255,.18); }
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: fadeUp .6s ease both; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding: 56px 0 60px; gap: 44px; }
+  .terminal-3d { transform: none !important; }
+  .terminal-stage { animation: none; }
+  .stack-layer { display: none; }
+  .modules { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .wrap { padding: 0 18px; }
+  .topnav-inner { padding: 12px 18px; }
+  .nav-logo-box { width: 32px; height: 32px; }
+  .nav-logo-name { font-size: 13.5px; }
+  .hero { padding: 40px 0 48px; }
+  .hero h1 { font-size: clamp(28px, 8vw, 36px); margin-bottom: 16px; }
+  .hero p.lede { font-size: 14.5px; margin-bottom: 26px; }
+  .discord-key { padding: 15px 22px; font-size: 14px; width: 100%; justify-content: center; }
+  .discord-key-wrap { width: 100%; }
+  .hero-actions { width: 100%; }
+  .shard { display: none; }
+  .terminal-body { font-size: 12px; padding: 16px 16px 20px; min-height: 220px; line-height: 1.7; }
+  .modules { grid-template-columns: 1fr; gap: 14px; margin-bottom: 70px; }
+  .section-title { margin-bottom: 28px; }
+  .bottom-cta { padding: 44px 22px; margin-bottom: 60px; border-radius: 20px; }
+  .footer { padding: 20px 0 40px; }
+  .footer-left { font-size: 11px; }
+
+  /* bottom CTA button row — wrap like: [Join Discord][MKWii TV] then [CTGP-R] centered below */
+  .cta-row { gap: 10px; }
+  .cta-row .discord-key-wrap { width: auto; }
+  .cta-row .discord-key { width: auto; padding: 14px 20px; font-size: 13.5px; }
+  .cta-row .cta-secondary { padding: 14px 18px; font-size: 13.5px; }
+}
+@media (hover: none) {
+  .module:hover { border-color: var(--glass-border); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 20px 45px rgba(0,0,0,.3); }
+}
 </style>
 </head>
 <body>
 
-<div class="page">
-  <div class="card">
-    <div class="logo-box"><img src="logo.png" alt="MKWii Channel Logo"></div>
-    <h1>MKWii Channel</h1>
-    <p class="desc">Competitive and casual Mario Kart Wii community with races, tournaments, custom tracks and friendly people.</p>
-    <div class="buttons">
-      <a class="button join" href="https://discord.gg/mkwiichannel" target="_blank">Join Server</a>
-      <a class="button Users" href="users.html" target="_self">Users</a>
-    </div>
-    <div class="note">By joining you agree to follow the server rules.</div>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="#">
+      <div class="nav-logo-box"><img src="ui_1.png" alt="MKWii Channel"></div>
+      <span class="nav-logo-name">MKWii Channel</span>
+    </a>
   </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="fade-up">
+      <h1>Your home for<br><span class="accent-js">Mario Kart Wii</span></h1>
+      <p class="lede">A competitive and casual community built around races, tournaments, custom tracks and the best people in the game.</p>
+      <div class="hero-actions">
+        <div class="discord-key-wrap">
+          <a class="discord-key discord-btn" href="#" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"></path></svg>
+            Join the Server
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal-stage fade-up" style="animation-delay:.1s">
+      <div class="shard shard-1">import Wii data</div>
+      <div class="shard shard-2">//ISO</div>
+      <div class="shard shard-3">status:live</div>
+      <div class="terminal-3d" id="terminal3d">
+        <div class="stack-layer l2"></div>
+        <div class="stack-layer l1"></div>
+        <div class="terminal-window">
+          <div class="terminal-titlebar">
+            
+            <span class="terminal-path">MKWii-Channel</span>
+          </div>
+          <div class="terminal-body" id="termBody"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="live-preview">
+    <p class="section-label center"><span class="path"></span>live preview</p>
+    <div class="preview-devices">
+      <img src="laptop1.png" alt="Laptop preview of the MKWii Channel live stream" class="device-laptop">
+      <img src="phone.png" alt="Phone preview of the MKWii Channel live stream" class="device-phone">
+    </div>
+  </section>
+
+  <section id="modules">
+    <p class="section-label"><span class="path"> </span> </p>
+    <h2 class="section-title">What's inside</h2>
+    <div class="modules">
+
+      <div class="module tilt">
+        <div class="module-icon-badge" style="--badge-bg: rgba(75,139,190,.16)">
+          <svg class="module-icon" viewBox="0 0 24 24" fill="none" stroke="var(--py)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+        </div>
+        <h3>Custom Tracks</h3>
+        <p>Hundreds of community-made tracks via CTGP-R — always something new to race.</p>
+      </div>
+
+      <div class="module tilt">
+        <div class="module-icon-badge" style="--badge-bg: rgba(240,219,79,.16)">
+          <svg class="module-icon" viewBox="0 0 24 24" fill="none" stroke="var(--js)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <h3>Tournaments</h3>
+        <p>Scheduled cups and brackets for every skill level, from casual to competitive.</p>
+      </div>
+
+      <div class="module tilt">
+        <div class="module-icon-badge" style="--badge-bg: rgba(63,185,80,.16)">
+          <svg class="module-icon" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3>Community</h3>
+        <p>Friendly players, helpful staff, and a Discord server that's always active.</p>
+      </div>
+
+      <div class="module tilt">
+        <div class="module-icon-badge" style="--badge-bg: rgba(88,101,242,.18)">
+          <svg class="module-icon" viewBox="0 0 24 24" fill="none" stroke="var(--blurple-light)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <h3>All Skill Levels</h3>
+        <p>First-time racer or seasoned competitor — the roster has room for both.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="bottom-cta">
+    <h2>Ready to race?</h2>
+    <p>Join the MKWii Channel Discord server and meet the community today.</p>
+    <div class="cta-row">
+      <div class="discord-key-wrap">
+        <a class="discord-key discord-btn" href="#" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"></path></svg>
+          Join Discord
+        </a>
+      </div>
+      <a class="cta-secondary" href="mkwtv.html">MKWii TV</a>
+      <a class="cta-secondary" href="https://chadsoft.co.uk/" target="_blank" rel="noopener">CTGP-R</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <img src="ctgpr-icon.png" alt="CTGP-R">
+      <span>Powered by CTGP-R</span>
+      <span class="footer-dot">•</span>
+      <span>Nintendo © 2019–2022 MKWii Channel</span>
+    </div>
+  </footer>
+
 </div>
+
+<script>
+const DISCORD_INVITE = "https://discord.gg/dbgJQSeGhA";
+document.querySelectorAll('.discord-btn').forEach(el => el.setAttribute('href', DISCORD_INVITE));
+
+// 2D press feedback (subtle scale, no keycap push)
+document.querySelectorAll('.discord-key').forEach(btn => {
+  btn.addEventListener('mousedown', () => btn.classList.add('is-pressed'));
+  btn.addEventListener('mouseup', () => btn.classList.remove('is-pressed'));
+  btn.addEventListener('mouseleave', () => btn.classList.remove('is-pressed'));
+  btn.addEventListener('touchend', () => btn.classList.remove('is-pressed'));
+});
+
+// ---- terminal typing sequence ----
+const lines = [
+  { text: '$ mkwii deploy', cls: 'tl-prompt' },
+  { text: '<span class="tl-ok">✓</span> compiling roster............ <span class="tl-str"> </span>', cls: '' },
+  { text: '<span class="tl-ok">✓</span> indexing custom tracks...... <span class="tl-str"></span>', cls: '' },
+  { text: '<span class="tl-ok">✓</span> starting event scheduler.... <span class="tl-str"></span>', cls: '' },
+  { text: '<span class="tl-ok">✓</span> opening  <span class="tl-str">mogis?*</span>', cls: '' },
+  { text: '$ mkwii-channel connect --MKWii TV', cls: 'tl-prompt' },
+  { text: '<span class="tl-comment">CTGP-R connection = live</span>', cls: '' },
+];
+
+const term = document.getElementById('termBody');
+let li = 0;
+
+function typeLine() {
+  if (li >= lines.length) {
+    term.innerHTML += '<span class="tl-cursor"></span>';
+    return;
+  }
+  const line = lines[li];
+  const row = document.createElement('div');
+  row.className = line.cls;
+  term.appendChild(row);
+
+  if (line.text.includes('<span')) {
+    row.innerHTML = line.text;
+    li++;
+    setTimeout(typeLine, 220);
+  } else {
+    let ci = 0;
+    const iv = setInterval(() => {
+      row.textContent = line.text.slice(0, ci + 1);
+      ci++;
+      if (ci >= line.text.length) {
+        clearInterval(iv);
+        li++;
+        setTimeout(typeLine, 180);
+      }
+    }, 22);
+  }
+}
+setTimeout(typeLine, 500);
+
+// ---- 3D tilt + hero-wide parallax only run on real pointer devices ----
+const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+if (supportsHover) {
+  document.querySelectorAll('.module.tilt').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateZ(6px)`;
+      card.style.setProperty('--mx', `${(x + 0.5) * 100}%`);
+      card.style.setProperty('--my', `${(y + 0.5) * 100}%`);
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = 'rotateY(0) rotateX(0) translateZ(0)'; });
+  });
+
+  const hero = document.querySelector('.hero');
+  const term3d = document.getElementById('terminal3d');
+  if (hero && term3d) {
+    hero.addEventListener('mousemove', e => {
+      const r = hero.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      term3d.style.transform = `rotateY(${-14 + x * 16}deg) rotateX(${7 - y * 16}deg)`;
+    });
+    hero.addEventListener('mouseleave', () => {
+      term3d.style.transform = 'rotateY(-14deg) rotateX(7deg)';
+    });
+  }
+}
+</script>
 
 </body>
 </html>
